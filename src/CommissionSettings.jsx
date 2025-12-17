@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { addRechargeApi, getCommission, minusAmountApi, updateCommission } from "./api";
 import AddMyRecharge from "./AddMyRecharge";
+import AddWithdrawAmount from "./AddWithdrawAmount ";
 
 const CommissionSettings = () => {
   const [level1, setLevel1] = useState("");
@@ -200,6 +201,7 @@ const CommissionSettings = () => {
             }
           }}
         />
+        <AddWithdrawAmount/>
     </div>
     
   );

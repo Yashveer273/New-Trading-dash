@@ -21,7 +21,15 @@ export const P_exp = async (userId, productId,exp) => {
     return { success: false, message: err.response.data.message };
   }
 };
-
+export const addWithdrawAmountMenually  = async (phone, Amount,type) => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}api/users/addWithdrawAmountMenually`, {  phone, Amount,type });
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching team:", err);
+    return { success: false, message: err.response.data.message };
+  }
+};
 export const addRechargeApi = async (utr, amount, phone) => {
   return await axios.post(`${API_BASE_URL}QR/api/Admin/recharge`, {
     utr,

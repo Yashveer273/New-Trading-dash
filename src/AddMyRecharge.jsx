@@ -51,7 +51,7 @@ const AddMyRecharge = ({  addrecharge, minusAountAction }) => {
           background: "#fff",
         }}
       >
-        <h4 style={{ marginBottom: "10px" }}>Add Amount</h4>
+        <h4 style={{ marginBottom: "10px" }}>Add Amont in Balance</h4>
  <input
           type="number"
           placeholder="Enter Phone Number"
@@ -131,7 +131,7 @@ const AddMyRecharge = ({  addrecharge, minusAountAction }) => {
           background: "#fff",
         }}
       >
-        <h4 style={{ marginBottom: "10px" }}>Minus Amount</h4>
+        <h4 style={{ marginBottom: "10px" }}>Minus Amont from Balance</h4>
 <input
           type="number"
           placeholder="Enter Phone Number"
