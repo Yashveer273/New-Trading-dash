@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { 
-  RefreshCw, CheckCircle, Loader2, X, AlertTriangle, ListChecks,  
+  RefreshCw, CheckCircle, Loader2, X, AlertTriangle, ListChecks, Copy 
 } from 'lucide-react';
 import './withdrawRequest.css';
 import { API_BASE_URL } from './api';
@@ -23,191 +23,134 @@ async function handleResponse(res) {
 const WithdrawRequest = () => {
   const [withdrawals, setWithdrawals] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [bankDetails, setBankDetails] = useState({userId:"", data:{},phone:""});
-
-  const MessageDisplay = ({ text }) => {
-    if (!text) return null;
-
-    const isSuccess = text.includes('Approved') || text.includes('Rejected');
-    const isError = text.includes('failed') || text.includes('Error:');
-
-    let wrapperClass = "msg-box";
-    let icon;
-
-    if (isSuccess) {
-      wrapperClass += " success";
-      icon = <CheckCircle className="icon" />;
-    } else if (isError) {
-      wrapperClass += " error";
-      icon = <X className="icon" />;
-    } else {
-      wrapperClass += " info";
-      icon = <Loader2 className="icon spin" />;
-    }
-
-    return (
-      <div className={wrapperClass}>
-        {icon}
-        <span>{text}</span>
-      </div>
-    );
-  };
+ 
+  const [bankDetailsMap, setBankDetailsMap] = useState({});
+  const [expandedUserId, setExpandedUserId] = useState(null);
+  const [localLoading, setLocalLoading] = useState(null); // Track which specific card is loading
 
   const fetchWithdrawals = useCallback(async () => {
     setIsLoading(true);
-    setMessage('Fetching pending withdrawals...');
-    setWithdrawals([]);
     try {
       const res = await fetch(API_WITHDRAW_PENDING);
       const data = await handleResponse(res);
-      if (!res.ok) throw new Error(data.message || `Failed: ${res.status}`);
-      if (Array.isArray(data.data)) {
+      if (res.ok && Array.isArray(data.data)) {
         setWithdrawals(data.data);
-        setMessage(`${data.data.length} pending withdrawals loaded.`);
-      } else {
-        throw new Error('Server response not a list.');
       }
     } catch (error) {
-      setMessage(`Error: ${error.message}`);
+      console.log(`Error: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const updateWithdrawStatus = useCallback(async (id, status) => {
-    setMessage(status === "approved" ? 'Approving withdrawal...' : 'Rejecting withdrawal...');
+  const updateStatus = async (id, status) => {
+    setLocalLoading(id);
     try {
       const apiUrl = status === "approved" ? API_WITHDRAW_APPROVE : API_WITHDRAW_REJECT;
       const res = await fetch(`${apiUrl}${id}`, { method: 'PUT' });
-      const resultBody = await handleResponse(res);
-      if (!res.ok) throw new Error(resultBody.message || res.statusText);
-      setMessage(`Withdrawal ID ${id} ${status === "approved" ? 'Approved' : 'Rejected'}.`);
-      fetchWithdrawals();
+      if (res.ok) {
+        fetchWithdrawals();
+      }
     } catch (error) {
-      setMessage(`Update failed: ${error.message}`);
-    }
-  }, [fetchWithdrawals]);
-
-  const showBankDetails = async (userId) => {
-    setMessage('Fetching bank details...');
-    try {
-      const res = await fetch(API_BANK_DETAILS, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
-     const  data = await handleResponse(res);
-      if (!res.ok) throw new Error(data.message || 'Failed to fetch bank details');
-
-      setBankDetails({userId,data:data.bankDetails,phone:data.phone});
-      setMessage('Bank details fetched successfully.');
-    } catch (error) {
-      setMessage(`Error: ${error.message}`);
-      setBankDetails(null);
+      console.error(error);
+    } finally {
+      setLocalLoading(null);
     }
   };
-const copyBankDetails = (bankDetails,amount) => {
-  const text = `
-Holder Phone: ${bankDetails.phone||"non"}
-Holder Name: ${bankDetails.data.holderName}
-Account Number: ${bankDetails.data.accountNumber}
-IFSC: ${bankDetails.data.ifscCode}
-Bank Name: ${bankDetails.data.bankName}
-UPI ID: ${bankDetails.data.upiId||"non"}
-Amount: ${amount||"0"} INR
-  `.trim();
 
-         
-  navigator.clipboard.writeText(text)
-    .then(() => alert("Bank details copied!"))
-    .catch(() => alert("Failed to copy"));
-};
+  const toggleBankDetails = async (e, userId) => {
+    e.preventDefault(); // Prevents scroll jump
+    
+    if (expandedUserId === userId) {
+      setExpandedUserId(null);
+      return;
+    }
 
-  const WithdrawItem = ({ item }) => (
-    <div className="transaction-card">
-      <div className="transaction-header">
-        <div className="transaction-user">
-          <p>User ID: <span>{item.user?._id}</span></p>
-          <p>Created At: <span>{new Date(item.createdAt).toLocaleString()}</span></p>
-        </div>
-        <p className="transaction-amount">
-         
-          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.amount)}
-        </p>
-      </div>
+    if (!bankDetailsMap[userId]) {
+      setLocalLoading(userId);
+      try {
+        const res = await fetch(API_BANK_DETAILS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        });
+        const data = await handleResponse(res);
+        if (res.ok) {
+          setBankDetailsMap(prev => ({
+            ...prev,
+            [userId]: { data: data.bankDetails, phone: data.phone }
+          }));
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLocalLoading(null);
+      }
+    }
+    setExpandedUserId(userId);
+  };
 
-      <div className="transaction-actions">
-        <button
-          onClick={() => updateWithdrawStatus(item._id, "approved")}
-          disabled={isLoading}
-          className="approve-btn"
-        >
-          <ListChecks className="icon" /> Approve
-        </button>
-        <button
-          onClick={() => updateWithdrawStatus(item._id, "rejected")}
-          disabled={isLoading}
-          className="reject-btn"
-        >
-          <X className="icon" /> Reject
-        </button>
-        <button
-          onClick={() => showBankDetails(item.user?._id)}
-          disabled={isLoading}
-          className="show-bank-btn"
-        >
-           Show Details
-        </button>
-      </div>
-      {bankDetails.data && item.user?._id==bankDetails.userId && (
-        <div className="bank-details">
-        
-          <p>Holder Name: <span>{bankDetails.data.holderName}</span></p>
-          <p>Holder Phone: <span>  {bankDetails.phone}</span></p>
-          <p>Account Number: <span>{bankDetails.data.accountNumber}</span></p>
-          <p>IFSC: <span>{bankDetails.data.ifscCode}</span></p>
-          <p>Bank Name: <span>{bankDetails.data.bankName}</span></p>
-          <p>UPI ID: <span>{bankDetails.data.upiId}</span></p>
-         
-          <button
-      className="copy-btn"
-      onClick={() => copyBankDetails(bankDetails, item.amount)}
-    >
-      Copy Details
-    </button>
-        </div>
-      )}
-    </div>
-  );
-useEffect(()=>{
-fetchWithdrawals()
-},[fetchWithdrawals]);
+  useEffect(() => { fetchWithdrawals(); }, [fetchWithdrawals]);
+
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper" style={{ minHeight: '100vh', scrollBehavior: 'smooth' }}>
       <div className="page-content">
         <div className="page-header">
-          <h1><AlertTriangle className="icon" /> Pending Withdrawals</h1>
-          <button
-            onClick={fetchWithdrawals}
-            disabled={isLoading}
-            className="fetch-btn"
-          >
-            <RefreshCw className={`icon ${isLoading ? 'spin' : ''}`} />
-            {isLoading ? 'Loading...' : 'Fetch Withdrawals'}
+          <h1><AlertTriangle className="icon" /> Pending</h1>
+          <button onClick={fetchWithdrawals} className="fetch-btn">
+            <RefreshCw className={isLoading ? 'spin' : ''} /> Refresh
           </button>
-          <MessageDisplay text={message} />
         </div>
 
         <div className="transaction-list">
-          {!isLoading && withdrawals.length === 0 && message.includes("loaded") && (
-            <div className="no-transactions">
-              <CheckCircle className="icon" />
-              <p>No pending withdrawals.</p>
-            </div>
-          )}
           {withdrawals.map(item => (
-            <WithdrawItem key={item._id} item={item} />
+            <div key={item._id} className="transaction-card" style={{ marginBottom: '10px', overflow: 'hidden' }}>
+              <div className="transaction-header">
+                <div>
+                  <p style={{ margin: 0 }}>User: <strong>{item.user?._id}</strong></p>
+                  <small>{new Date(item.createdAt).toLocaleDateString()}</small>
+                </div>
+                <p className="transaction-amount">₹{item.amount}</p>
+              </div>
+
+              <div className="transaction-actions" style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
+                <button onClick={() => updateStatus(item._id, "approved")} className="approve-btn">Approve</button>
+                <button onClick={() => updateStatus(item._id, "rejected")} className="reject-btn">Reject</button>
+                <button 
+                  onClick={(e) => toggleBankDetails(e, item.user?._id)} 
+                  style={{
+                    backgroundColor: expandedUserId === item.user?._id ? '#ef4444' : '#3b82f6',
+                    color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer'
+                  }}
+                >
+                  {localLoading === item.user?._id ? '...' : expandedUserId === item.user?._id ? 'Close' : 'View Details'}
+                </button>
+              </div>
+
+              {expandedUserId === item.user?._id && bankDetailsMap[item.user?._id] && (
+                <div style={{
+                  marginTop: '10px', padding: '15px', background: '#f3f4f6', borderRadius: '8px',
+                  borderTop: '2px solid #3b82f6', animation: 'fadeIn 0.2s ease-in-out'
+                }}>
+                  <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                    <p><strong>Name:</strong> {bankDetailsMap[item.user?._id].data.holderName}</p>
+                    <p><strong>A/C:</strong> {bankDetailsMap[item.user?._id].data.accountNumber}</p>
+                    <p><strong>IFSC:</strong> {bankDetailsMap[item.user?._id].data.ifscCode}</p>
+                    <p><strong>Phone:</strong> {bankDetailsMap[item.user?._id].phone}</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      const d = bankDetailsMap[item.user?._id];
+                      navigator.clipboard.writeText(`Name: ${d.data.holderName}\nACC: ${d.data.accountNumber}\nIFSC: ${d.data.ifscCode}\nAmount: ${item.amount}`);
+                      alert("Copied!");
+                    }}
+                    style={{ marginTop: '10px', width: '100%', padding: '8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '4px' }}
+                  >
+                    <Copy size={14} /> Copy Details
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>

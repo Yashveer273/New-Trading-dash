@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  
-  BsPercent  ,
+  BsPercent,
   BsGrid1X2Fill,
   BsPeopleFill,
   BsWallet2,
@@ -16,98 +15,98 @@ import {
   BsPower,
   BsChevronLeft,
   BsChevronRight,
-  BsGift,BsDice5,
-  BsFileEarmarkText
+  BsGift,
+  BsDice5,
+  BsFileEarmarkText,
 } from "react-icons/bs";
 
-function Sidebar() {
-  
-  const [isOpen, setIsOpen] = useState(true);
+/* 🔥 MENU CONFIG */
+const menuItems = [
+  { path: "/", label: "Product Purchase History", icon: BsGrid1X2Fill },
+  { path: "/edit-product", label: "Create Product", icon: BsBoxSeam },
+  { path: "/users", label: "All Users", icon: BsPeopleFill },
+  { path: "/CreateDemousers", label: "Create Demo Users", icon: BsPeopleFill },
+  { path: "/demousers", label: "Demo Users", icon: BsPeopleFill },
+  { path: "/SubordinateManager", label: "Subordinate Manager", icon: BsPeopleFill },
+  { path: "/commissionSettings", label: "Commission Settings", icon: BsPercent },
+  { path: "/QRCodeSubmit", label: "Add QR Code", icon: BsWallet2 },
+  { path: "/recharge", label: "Deposit History", icon: BsCashStack },
+  { path: "/withdraw", label: "Withdraw History", icon: BsArrowUpRightCircle },
+  { path: "/WithdrawRequest", label: "Withdraw Request", icon: BsBag },
+  { path: "/payment-status", label: "Deposit Request", icon: BsCreditCard },
+  { path: "/UPISettings", label: "UPI Settings", icon: BsWallet2 },
+  { path: "/LucySpin", label: "Lucky Spin", icon: BsDice5 },
+  { path: "/team-income", label: "Team Income", icon: BsBarChart },
+  { path: "/giftcodes", label: "Gift Codes", icon: BsGift },
+  { path: "/claim-history", label: "Claim History", icon: BsFileEarmarkText },
+  { path: "/socialMedia", label: "Social Media", icon: BsTelegram },
+];
 
-  const toggleSidebar = () => setIsOpen(prev => !prev);
- const handleLogout = () => {
+function Sidebar() {
+  const user = JSON.parse(localStorage.getItem("realStateLoggedUser"));
+  const role = user?.type;
+
+  const [isOpen, setIsOpen] = useState(true);
+  const toggleSidebar = () => setIsOpen((prev) => !prev);
+
+  const handleLogout = () => {
     localStorage.removeItem("realStateLoggedUser");
-  window.location.reload();
+    window.location.reload();
   };
+
+  // 🔥 Only these paths allowed for subordinate
+  const subordinateAllowed = [
+    "/payment-status",  // Deposit Request
+    "/QRCodeSubmit",    // Add QR Code
+    "/UPISettings",
+    "/recharge",
+       // UPI Settings
+  ];
+
+  const filteredMenus =
+    role === "subordinate"
+      ? menuItems.filter((item) => subordinateAllowed.includes(item.path))
+      : menuItems;
+
   return (
     <>
-    <div className="sidebar-toggle" onClick={toggleSidebar}>
+      <div className="sidebar-toggle" onClick={toggleSidebar}>
         {isOpen ? <BsChevronLeft size={30} /> : <BsChevronRight size={30} />}
       </div>
-    <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-      
 
-      {isOpen && (
-        <>
-          <div className="sidebar-user">
-           
-          
-          </div>
-<span
-            onClick={handleLogout}
-            style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-          >
-            <BsPower className="icon" /> Logout
-          </span>
-          <ul className="sidebar-menu">
-            <li className="sidebar-item">
-              <Link to="/"><BsGrid1X2Fill className="icon" /> Product Purchase History</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/users"><BsPeopleFill className="icon" /> All Users</Link>
-            </li> <li className="sidebar-item">
-              <Link to="/CreateDemousers"><BsPeopleFill className="icon" />Create Demo Users</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/demousers"><BsPeopleFill className="icon" />Demo Users</Link>
-            </li>
-             <li className="sidebar-item">
-              <Link to="/SubordinateManager"><BsPeopleFill className="icon" />Subordinate Manager</Link>
-            </li>
-             <li className="sidebar-item">
-              <Link to="/commissionSettings"><BsPercent className="icon" />commission Settings</Link>
-            </li>
-              <li className="sidebar-item">
-              <Link to="/UPISettings"><BsWallet2 className="icon" />UPI Settings</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/QRCodeSubmit"><BsWallet2 className="icon" /> Add QR Code</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/LucySpin"><BsDice5 className="icon" /> Lucky Spin</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/recharge"><BsCashStack className="icon" /> Deposit History</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/withdraw"><BsArrowUpRightCircle className="icon" /> Withdraw History</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/WithdrawRequest"><BsBag className="icon" /> Withdraw Request</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/edit-product"><BsBoxSeam className="icon" /> Edit Product</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/team-income"><BsBarChart className="icon" /> Team Income</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/giftcodes"><BsGift className="icon" /> Gift Codes</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/claim-history"><BsFileEarmarkText className="icon" /> Claim History</Link>
-            </li>
-            <li className="sidebar-item">
-              <Link to="/payment-status"><BsCreditCard className="icon" /> Deposit Request</Link>
-            </li>
-           <li className="sidebar-item">
-              <Link to="/socialMedia"><BsTelegram  className="icon" /> Social Media</Link>
-            </li>
-             
-          </ul>
-        </>
-      )}
-    </aside>
+      <aside className={`sidebar ${isOpen ? "open" : "closed"}`}>
+        {isOpen && (
+          <>
+            <div className="sidebar-user"></div>
+
+            <span
+              onClick={handleLogout}
+              style={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "10px",
+              }}
+            >
+              <BsPower className="icon" />{" "}
+              {role === "subordinate" ? "Subordinate Logout" : "Logout"}
+            </span>
+
+            <ul className="sidebar-menu">
+              {filteredMenus.map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <li key={index} className="sidebar-item">
+                    <Link to={item.path}>
+                      <Icon className="icon" /> {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </aside>
     </>
   );
 }

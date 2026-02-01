@@ -1,17 +1,13 @@
 import axios from "axios";
 
 // Base URL for the backend API
-// export const API_BASE_URL = "http://localhost:5004/"; 
-// export const API_BASE_URL2 = "http://localhost:5004"; 
+// export const API_BASE_URL = "http://localhost:5004/";
 export const API_BASE_URL = "https://bdgwin.com.co/";
 export const API_BASE_URL2 = "https://bdgwin.com.co";
-export const registerUser = async (userData) => {
-  
+export const registerUser = async (userData) => { 
     const res = await axios.post(`${API_BASE_URL}api/users/register`, userData);
     return res;
- 
 };
-
 export const P_exp = async (userId, productId,exp) => {
   try {
     const res = await axios.post(`${API_BASE_URL}api/claimROI/P_exp`, {  userId, productId,exp });

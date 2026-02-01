@@ -117,7 +117,7 @@ function ManageProducts() {
   };
 
   const handleAddProduct = async () => {
-    const { name, price, cycleType, cycleValue, daily, hour, image, badge, purchaseType,productExplanation, isdailyClaim  } = productForm;
+    const { name, price, cycleType, cycleValue, daily, hour, image, badge, purchaseType,productExplanation,   } = productForm;
 console.log(productForm);
     if (!name || !price || !cycleValue || (cycleType === "day" && !daily) || (cycleType === "hour" && !hour)) {
       showMessage("Please fill all required fields!", "error");
@@ -129,7 +129,7 @@ console.log(productForm);
     }
     const formData = new FormData();
     formData.append("categoryName", selectedCategory ?? "");
-    formData.append("isdailyClaim", isdailyClaim ?? "");
+    formData.append("isdailyClaim", false);
     formData.append("productName", name ?? "");
     formData.append("price", price ?? "");
     formData.append("cycleType", cycleType ?? "");
@@ -181,7 +181,7 @@ console.log(productForm);
 
     setSelectedCategory(product.categoryName);
     setProductForm({
-      isdailyClaim:product.isdailyClaim||false,
+      isdailyClaim:false,
       name: product.productName,
       price: product.price,
       cycleType: product.cycleType,
@@ -306,13 +306,7 @@ console.log(productForm);
             <option value="All time">All time</option>
           </select>
         </div>
-<div>
-          <label>is Daily Claim</label>
-          <select name="isdailyClaim" required value={productForm.isdailyClaim} onChange={handleInputChange}>
-            <option value={true}>Yes</option>
-            <option value={false}>No</option>
-          </select>
-        </div>
+
 
 
 <div>
