@@ -11,7 +11,7 @@ import {
   BsBarChart,
   BsCreditCard,
   BsTelegram,
-  BsBoxSeam,
+  
   BsPower,
   BsChevronLeft,
   BsChevronRight,
@@ -23,10 +23,11 @@ import {
 /* 🔥 MENU CONFIG */
 const menuItems = [
   { path: "/", label: "Product Purchase History", icon: BsGrid1X2Fill },
-  { path: "/edit-product", label: "Create Product", icon: BsBoxSeam },
+  { path: "/StocksDB", label: "StocksDB", icon: BsGrid1X2Fill },
+  
   { path: "/users", label: "All Users", icon: BsPeopleFill },
-  { path: "/CreateDemousers", label: "Create Demo Users", icon: BsPeopleFill },
-  { path: "/demousers", label: "Demo Users", icon: BsPeopleFill },
+  // { path: "/CreateDemousers", label: "Create Demo Users", icon: BsPeopleFill },
+  // { path: "/demousers", label: "Demo Users", icon: BsPeopleFill },
   { path: "/SubordinateManager", label: "Subordinate Manager", icon: BsPeopleFill },
   { path: "/commissionSettings", label: "Commission Settings", icon: BsPercent },
   { path: "/QRCodeSubmit", label: "Add QR Code", icon: BsWallet2 },
@@ -35,10 +36,7 @@ const menuItems = [
   { path: "/WithdrawRequest", label: "Withdraw Request", icon: BsBag },
   { path: "/payment-status", label: "Deposit Request", icon: BsCreditCard },
   { path: "/UPISettings", label: "UPI Settings", icon: BsWallet2 },
-  { path: "/LucySpin", label: "Lucky Spin", icon: BsDice5 },
-  { path: "/team-income", label: "Team Income", icon: BsBarChart },
-  { path: "/giftcodes", label: "Gift Codes", icon: BsGift },
-  { path: "/claim-history", label: "Claim History", icon: BsFileEarmarkText },
+  
   { path: "/socialMedia", label: "Social Media", icon: BsTelegram },
 ];
 
@@ -60,6 +58,7 @@ function Sidebar() {
     "/QRCodeSubmit",    // Add QR Code
     "/UPISettings",
     "/recharge",
+    "/StocksDB"
        // UPI Settings
   ];
 
@@ -77,7 +76,7 @@ function Sidebar() {
       <aside className={`sidebar ${isOpen ? "open" : "closed"}`}>
         {isOpen && (
           <>
-            <div className="sidebar-user"></div>
+          
 
             <span
               onClick={handleLogout}

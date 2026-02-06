@@ -7,22 +7,14 @@ import {
   ShoppingCart,
   Users,
   DollarSign,
-  RefreshCw,
   X,
   Check,
   Trash2,
 } from "lucide-react";
-import {
+import { API_BASE_URL, deleteUser, searchuser } from "./api";
 
-  API_BASE_URL,
-  deleteUser,
- 
-  P_exp,
-  searchuser,
-} from "./api";
-import AddMyRecharge from "./AddMyRecharge";
+import { useNavigate } from "react-router-dom";
 
-// --- CONFIGURATION ---
 const PAGE_SIZE = 10;
 
 // --- HELPER FUNCTIONS ---
@@ -268,7 +260,7 @@ const UserTable = ({ onUserSelect, isDemoUser }) => {
 
     // ✅ First, check if user exists locally
     const localUser = users.find(
-      (u) => u.phone === searchTerm || u._id === searchTerm
+      (u) => u.phone === searchTerm || u._id === searchTerm,
     );
 
     if (localUser) {
@@ -367,17 +359,17 @@ const TeamDetailsTable = ({ userId, teamNumber, isDemoUser }) => {
     group.ids.map((member) => ({
       ...member,
       groupIndex: groupIdx + 1 + (currentPage - 1) * PAGE_SIZE, // This group index is per-page, not global. For simplicity, we just use local index.
-    }))
+    })),
   );
 
   // Calculate total recharge and commission for the *currently displayed* groups
   const totalRecharge = teamGroups.reduce(
     (acc, group) => acc + (group.totalRecharge || 0),
-    0
+    0,
   );
   const totalCommission = teamGroups.reduce(
     (acc, group) => acc + (group.totalCommission || 0),
-    0
+    0,
   );
 
   const renderMemberRow = (member, index) => (
@@ -449,13 +441,7 @@ const TeamDetailsTable = ({ userId, teamNumber, isDemoUser }) => {
     </div>
   );
 };
-const planExp = async (item, user) => {
-  const res = await P_exp(user._id, item, true);
 
-  console.log(res);
-
-  alert(res.message);
-};
 // --- GENERIC HISTORY TABLE ---
 const HistoryTable = ({
   isDemoUser,
@@ -555,7 +541,7 @@ const WithdrawLimitUpdater = ({ userId, currentLimit, onUpdate }) => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ limit: parseFloat(limit) }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -614,10 +600,16 @@ const WithdrawLimitUpdater = ({ userId, currentLimit, onUpdate }) => {
 };
 
 // --- USER DETAILS VIEW ---
-const UserDetails = ({ selectedUserFromList, onBack, isDemoUser,deLoading }) => {
+const UserDetails = ({
+  selectedUserFromList,
+  onBack,
+  isDemoUser,
+  deLoading,
+}) => {
   // Fetch full details of the user
+  const navigate = useNavigate();
   const detailUrl = `${API_BASE_URL}api/users/details/${formatOid(
-    selectedUserFromList._id
+    selectedUserFromList._id,
   )}`;
   const {
     data: detailData,
@@ -634,7 +626,7 @@ const UserDetails = ({ selectedUserFromList, onBack, isDemoUser,deLoading }) => 
     if (user.withdrawLimit !== undefined) {
       setWithdrawLimit(user.withdrawLimit);
     }
-  }, [user.withdrawLimit,user]);
+  }, [user.withdrawLimit, user]);
 
   if (detailLoading && !detailData)
     return (
@@ -678,45 +670,28 @@ const UserDetails = ({ selectedUserFromList, onBack, isDemoUser,deLoading }) => 
 
   // Total members calculation can be inaccurate as team arrays are $slice'd (limited to 10) in the detail API.
   // A dedicated endpoint for total members would be ideal, but for now we use the slice'd data.
-  const totalIndividualMembers =
-    team1.flatMap((g) => g.ids || []).length +
-    team2.flatMap((g) => g.ids || []).length +
-    team3.flatMap((g) => g.ids || []).length;
 
-  const renderPurchaseRow = (p, index) => {
-    const isClaimed = p.claim === "claimed";
-    const rowClass = isClaimed ? "purchase-claimed" : "purchase-waiting";
-    const badgeClass = isClaimed ? "badge-c" : "badge-p";
-    //  headers={['Total Amount', 'Amount', 'Cycle','Type','Duration', 'Daily Income','ProductId','productName','purchaseType','quantity', 'Claim Status', 'Purchase Date']}
-
+  const renderPurchaseRow = (stockRow, index) => {
     return (
-      <tr key={index} className={rowClass}>
-        <td className="td">₹{p.TotalAmount}</td>
-        <td className="td">₹{p.amount}</td>
+      <tr key={index}>
+        <td className="td">{stockRow.stockId}</td>
+        <td className="td">{stockRow.stockName}</td>
 
-        <td className="td">{p.cycleType}</td>
-        <td className="td">
-          {p.cycleValue} || {p.cycleType}
-        </td>
-        <td className="td">{p.dailyIncome}</td>
-        <td className="td">{p.productId}</td>
-        <td className="td">{p.productName}</td>
-        <td className="td">{p.purchaseType}</td>
-        <td className="td">{p.quantity}</td>
-        <td className="td">
-          <span className={badgeClass}>{p.claim}</span>
-        </td>
-        <td className="td text-xs">{formatDate(p.createdAt)}</td>
         <td className="td text-center">
-          {!p?.exp && isDemoUser && (
-            <button
-              onClick={() => {   deLoading("details","list"); planExp(p.productId, selectedUserFromList)}}
-              className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition"
-            >
-              Exp
-            </button>
-          )}
+          <button
+            onClick={() => navigate(`/stock/${stockRow.stockId}`)}
+            className="bg-indigo-500 text-white px-3 py-1 rounded-md hover:bg-indigo-600"
+          >
+            View
+          </button>
         </td>
+
+        <td className="td">₹{stockRow.unitAmount}</td>
+        <td className="td">{stockRow.totalStockUnits}</td>
+        <td className="td">{stockRow.leftStatus}</td>
+        <td className="td">₹{stockRow.soldStockAmount}</td>
+        <td className="td">{formatDate(stockRow.lastSoldDate)}</td>
+        <td className="td">{formatDate(stockRow.purchaseDate)}</td>
       </tr>
     );
   };
@@ -742,8 +717,8 @@ const UserDetails = ({ selectedUserFromList, onBack, isDemoUser,deLoading }) => 
           color="#10b981"
         />
         <DetailCard
-          title="Pending Income"
-          value={`₹${pendingIncome}`}
+          title="Referral Income"
+          value={`₹${0}`}
           icon={Loader}
           color="#f59e0b"
         />
@@ -775,9 +750,11 @@ const UserDetails = ({ selectedUserFromList, onBack, isDemoUser,deLoading }) => 
           <DetailItem label="Trade Password" value={tradePassword || "N/A"} />
           <DetailItem label="Referral Code" value={referralCode} />
           <DetailItem label="Referred By" value={referredBy || "None"} />
-          <DetailItem label="referral By Phone" value={referralBy_Phone || "None"} />
-          <DetailItem label="Product Income" value={`₹${productIncome || 0}`} />
-          <DetailItem label="Tasks Reward" value={`₹${tasksReward || 0}`} />
+          <DetailItem
+            label="referral By Phone"
+            value={referralBy_Phone || "None"}
+          />
+
           <DetailItem label="Total Withdrawal" value={`₹${Withdrawal || 0}`} />
         </div>
 
@@ -797,42 +774,6 @@ const UserDetails = ({ selectedUserFromList, onBack, isDemoUser,deLoading }) => 
             }}
           />
         </div>
-       
-      </div>
-
-      {/* --- TEAM DETAILS (L1, L2, L3) - Paginated API calls --- */}
-      <div className="section-box">
-        <h3 >
-          <Users
-            style={{ width: 24, height: 24, marginRight: 12, color: "#4f46e5" }}
-          />
-          Total All Teams Members {totalIndividualMembers}
-        </h3>
-        
-        <div
-          style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            gap: 32,
-          }}
-        >
-          <TeamDetailsTable
-            userId={formatOid(_id)}
-            teamNumber={1}
-            isDemoUser={isDemoUser}
-          />
-          <TeamDetailsTable
-            userId={formatOid(_id)}
-            teamNumber={2}
-            isDemoUser={isDemoUser}
-          />
-          <TeamDetailsTable
-            userId={formatOid(_id)}
-            teamNumber={3}
-            isDemoUser={isDemoUser}
-          />
-        </div>
       </div>
 
       {/* --- PURCHASE HISTORY - Paginated API call --- */}
@@ -848,42 +789,20 @@ const UserDetails = ({ selectedUserFromList, onBack, isDemoUser,deLoading }) => 
           userId={formatOid(_id)}
           title="Purchase History"
           headers={[
-            "Total Amount",
-            "Amount",
-            "Type",
-            "Duration",
-            "Daily Income",
-            "ProductId",
-            "productName",
-            "purchaseType",
-            "quantity",
-            "Claim Status",
+            "StockId",
+            "Stock Name",
+            "View Stock",
+            "Single Unit Value",
+            "Total Stock Units",
+            "Left Status",
+            "Sold Stock Amount",
+            "Last Sold Date",
             "Purchase Date",
-            "Exp Plane",
           ]}
           endpoint="purchases"
           historyKey="purchases"
           renderRow={renderPurchaseRow}
         />
-      </div>
-
-      {/* --- LUCKY SPIN DETAILS --- */}
-      <div className="section-box">
-        <h2 className="h2-section">
-          <RefreshCw
-            style={{ width: 24, height: 24, marginRight: 12, color: "#4f46e5" }}
-          />
-          Lucky Spin Details
-        </h2>
-        <div className="info-grid">
-          <DetailItem label="Spins Today" value={luckySpin.spinsToday || 0} />
-          <DetailItem label="Spin Limit" value={luckySpin.SpinLimit || 0} />
-          <DetailItem
-            label="Last Spin Date"
-            value={formatDate(luckySpin.createdAt)}
-          />
-          <DetailItem label="Lucky Spin OID" value={formatOid(luckySpin._id)} />
-        </div>
       </div>
 
       {/* --- FINANCIAL HISTORY (Recharge & Withdraw) --- */}
@@ -950,13 +869,13 @@ const AllUsers = ({ isDemoUser }) => {
     setSelectedUser(null);
     setView("list");
   };
- const deLoading = (type, type2) => {
-  setView(type2); // show loading / alternate view first
+  const deLoading = (type, type2) => {
+    setView(type2); // show loading / alternate view first
 
-  setTimeout(() => {
-    setView(type); // after delay set original view
-  }, 600); // 1 second delay
-};
+    setTimeout(() => {
+      setView(type); // after delay set original view
+    }, 600); // 1 second delay
+  };
 
   return (
     <div className="allUser">
@@ -1119,7 +1038,7 @@ const AllUsers = ({ isDemoUser }) => {
           selectedUserFromList={selectedUser}
           onBack={handleBack}
           isDemoUser={isDemoUser}
-          deLoading= {deLoading}
+          deLoading={deLoading}
         />
       )}
     </div>

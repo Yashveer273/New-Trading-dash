@@ -16,12 +16,13 @@ body {
     "sidebar header"
     "sidebar main";
   height: 100vh;
-  overflow:scroll;
+  overflow: hidden;
+
 }
 
 /* Sidebar */
 .sidebar {
-  grid-area: sidebar;
+  /* grid-area: sidebar; */
   width: 260px;
   background-color: #1f2937;
   color: #fff;
@@ -29,8 +30,8 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  overflow-y: scroll; /* allow scrolling if items exceed height */
-
+  overflow-x: scroll; 
+padding-top: 10vh;
 }
 
 .sidebar-user {

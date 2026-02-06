@@ -9,18 +9,17 @@ import Withdrawal from "./WithdrawHistory";
 import WithdrawRequest from "./withdrawRequest";
 import PaymentStatus from "./PaymentStatus";
 import Logout from "./Logout";
-import ManageProducts from "./ManageProducts";
-import Giftcodes from "./Giftcodes";
-import Teams from "./Teams";
+
 import QRCodeSubmit from "./QRCodeSubmit";
-import LucySpin from "./lucySpin";
+
 import ProductPurchaseList from "./ProductPurchaseList";
 import SocialMedia from "./SocialMedia";
-import DemoAccounts from "./DemoAccounts";
+
 import CommissionSettings from "./CommissionSettings";
 import UPIDashboard from "./UPIDashboard";
 import AuthCard from "./AuthCard";
 import SubordinateManager from "./SubordinateManager";
+import StocksDB from "./StocksDB";
 
 function App() {
   const [loggedUser, setLoggedUser] = useState(null);
@@ -42,6 +41,7 @@ function App() {
     "/QRCodeSubmit",
     "/UPISettings",
     "/recharge",
+    "/StocksDB"
   ];
 
   const ProtectedRoute = ({ path, element }) => {
@@ -57,9 +57,10 @@ function App() {
 
       <Routes>
         <Route path="/" element={<ProtectedRoute path="/" element={<ProductPurchaseList />} />} />
+        <Route path="/StocksDB" element={<ProtectedRoute path="/StocksDB" element={<StocksDB />} />} />
         <Route path="/users" element={<ProtectedRoute path="/users" element={<Users isDemoUser={false} />} />} />
-        <Route path="/CreateDemousers" element={<ProtectedRoute path="/CreateDemousers" element={<DemoAccounts />} />} />
-        <Route path="/demousers" element={<ProtectedRoute path="/demousers" element={<Users isDemoUser={true} />} />} />
+        {/* <Route path="/CreateDemousers" element={<ProtectedRoute path="/CreateDemousers" element={<DemoAccounts />} />} /> */}
+        {/* <Route path="/demousers" element={<ProtectedRoute path="/demousers" element={<Users isDemoUser={true} />} />} /> */}
         <Route path="/commissionSettings" element={<ProtectedRoute path="/commissionSettings" element={<CommissionSettings />} />} />
         <Route path="/UPISettings" element={<ProtectedRoute path="/UPISettings" element={<UPIDashboard />} />} />
         <Route path="/SubordinateManager" element={<ProtectedRoute path="/SubordinateManager" element={<SubordinateManager />} />} />
@@ -67,16 +68,15 @@ function App() {
         <Route path="/recharge" element={<ProtectedRoute path="/recharge" element={<Recharge />} />} />
         <Route path="/withdraw" element={<ProtectedRoute path="/withdraw" element={<Withdrawal />} />} />
         <Route path="/WithdrawRequest" element={<ProtectedRoute path="/WithdrawRequest" element={<WithdrawRequest />} />} />
-        <Route path="/edit-product" element={<ProtectedRoute path="/edit-product" element={<ManageProducts />} />} />
+
 
         <Route path="/payment-status" element={<ProtectedRoute path="/payment-status" element={<PaymentStatus />} />} />
         <Route path="/QRCodeSubmit" element={<ProtectedRoute path="/QRCodeSubmit" element={<QRCodeSubmit />} />} />
 
-        <Route path="/LucySpin" element={<ProtectedRoute path="/LucySpin" element={<LucySpin />} />} />
-        <Route path="/giftcodes" element={<ProtectedRoute path="/giftcodes" element={<Giftcodes />} />} />
+        
         <Route path="/socialMedia" element={<ProtectedRoute path="/socialMedia" element={<SocialMedia />} />} />
 
-        <Route path="/teams/:id" element={<ProtectedRoute path="/teams/:id" element={<Teams />} />} />
+      
         <Route path="/logout" element={<Logout />} />
       </Routes>
     </div>
