@@ -195,6 +195,7 @@ const UserTable = ({ onUserSelect, isDemoUser }) => {
   // ⬇️ update `users` every time `data` changes
   useEffect(() => {
     if (data?.users) {
+      
       setusers(data.users);
     }
   }, [data]);
@@ -343,104 +344,7 @@ const UserTable = ({ onUserSelect, isDemoUser }) => {
   );
 };
 
-// --- TEAM DETAILS TABLE WITH SERVER PAGINATION ---
-const TeamDetailsTable = ({ userId, teamNumber, isDemoUser }) => {
-  const teamType = `team${teamNumber}`;
-  const [currentPage, setCurrentPage] = useState(1);
-  const teamUrl = `${API_BASE_URL}api/users/${userId}/team?type=${teamType}&page=${currentPage}&limit=${PAGE_SIZE}`;
-  const { data, loading, error } = useFetch(teamUrl, [currentPage]);
 
-  const teamGroups = data?.items || [];
-  const totalPages = data?.totalPages || 1;
-  const totalItems = data?.totalItems || 0;
-
-  // We need to flatten the 'ids' array from the groups for the table display
-  const allMembers = teamGroups.flatMap((group, groupIdx) =>
-    group.ids.map((member) => ({
-      ...member,
-      groupIndex: groupIdx + 1 + (currentPage - 1) * PAGE_SIZE, // This group index is per-page, not global. For simplicity, we just use local index.
-    })),
-  );
-
-  // Calculate total recharge and commission for the *currently displayed* groups
-  const totalRecharge = teamGroups.reduce(
-    (acc, group) => acc + (group.totalRecharge || 0),
-    0,
-  );
-  const totalCommission = teamGroups.reduce(
-    (acc, group) => acc + (group.totalCommission || 0),
-    0,
-  );
-
-  const renderMemberRow = (member, index) => (
-    <tr key={formatOid(member._id)} className="tr-hover-gray">
-      <td className="td">{index + 1}</td>
-      <td className="td t-indigo font-medium">{member.phone}</td>
-      <td className="td text-xs">{member.person || "N/A"}</td>
-    </tr>
-  );
-
-  if (error)
-    return (
-      <div className="error-box-mini">
-        Error loading L{teamNumber} team: {error}
-      </div>
-    );
-
-  return (
-    <div className="team-box">
-      <h3 className="h3-title" style={{ fontSize: "1.25rem", fontWeight: 700 }}>
-        Level {teamNumber} Team Members (L{teamNumber})
-      </h3>
-
-      <div className="team-sum-grid">
-        <div className="d-item">
-          <p className="d-item-label">{`Displayed L${teamNumber} Group Recharge`}</p>
-          <p className="d-item-value">₹{totalRecharge}</p>
-        </div>
-        <div className="d-item">
-          <p className="d-item-label">{`Displayed L${teamNumber} Group Commission`}</p>
-          <p className="d-item-value">₹{totalCommission}</p>
-        </div>
-      </div>
-
-      <TableWithServerPagination
-        isDemoUser={isDemoUser}
-        data={allMembers}
-        children={
-          <thead className="t-head-team">
-            <tr>
-              {["S. No.", "Phone Number", "Person ID"].map((h, i) => (
-                <th key={i} scope="col" className="th">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-        }
-        renderRow={renderMemberRow}
-        emptyMessage={`No individuals found in Team ${teamNumber} groups.`}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={totalItems}
-        onPageChange={setCurrentPage}
-        loading={loading}
-      />
-      {totalItems > 0 && (
-        <p
-          style={{
-            fontSize: "0.875rem",
-            textAlign: "right",
-            color: "#6b7280",
-            marginTop: 8,
-          }}
-        >
-          Total L{teamNumber} Groups: {totalItems}
-        </p>
-      )}
-    </div>
-  );
-};
 
 // --- GENERIC HISTORY TABLE ---
 const HistoryTable = ({
@@ -455,7 +359,8 @@ const HistoryTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const historyUrl = `${API_BASE_URL}api/users/${userId}/${endpoint}?page=${currentPage}&limit=${PAGE_SIZE}`;
   const { data, loading, error } = useFetch(historyUrl, [currentPage]);
-  console.log(data);
+  console.log(data,error);
+
   const historyData = data ? data[historyKey] || [] : [];
   const totalPages = data?.totalPages || 1;
   const totalItems = data?.totalItems || 0;
@@ -686,16 +591,42 @@ const UserDetails = ({
           </button>
         </td>
 
-        <td className="td">₹{stockRow.unitAmount}</td>
+        <td className="td">₹{stockRow.singleUnitValue}</td>
         <td className="td">{stockRow.totalStockUnits}</td>
-        <td className="td">{stockRow.leftStatus}</td>
+        <td className="td">{stockRow.leftStockUnits}</td>
         <td className="td">₹{stockRow.soldStockAmount}</td>
         <td className="td">{formatDate(stockRow.lastSoldDate)}</td>
         <td className="td">{formatDate(stockRow.purchaseDate)}</td>
       </tr>
     );
   };
+ const renderSoldRow = (stockRow, index) => {
+    return (
+      <tr key={index}>   <td className="td">{stockRow.purchaseId}</td>
+        <td className="td">{stockRow.stockId}</td>
+     
+        <td className="td">{stockRow.unitsSold}</td>
 
+        <td className="td text-center">
+          <button
+            onClick={() => navigate(`/stock/${stockRow.stockId}`)}
+            className="bg-indigo-500 text-white px-3 py-1 rounded-md hover:bg-indigo-600"
+          >
+            View
+          </button>
+        </td>
+
+        <td className="td">₹{stockRow.soldPricePerUnit}</td>
+        <td className="td">{stockRow.totalSoldAmount}</td>
+        <td className="td">{stockRow.totalunits}</td>
+        <td className="td">{stockRow.remainingUnitsAfterSell}</td>
+      
+       
+        <td className="td">{formatDate(stockRow.soldDate)}</td>
+
+      </tr>
+    );
+  };
   return (
     <div className="details-view">
       <button onClick={onBack} className="btn-back btn-base">
@@ -804,7 +735,34 @@ const UserDetails = ({
           renderRow={renderPurchaseRow}
         />
       </div>
-
+<div className="section-box">
+        <h2 className="h2-section">
+          <ShoppingCart
+            style={{ width: 24, height: 24, marginRight: 12, color: "#4f46e5" }}
+          />
+          Sold History
+        </h2>
+        <HistoryTable
+          isDemoUser={isDemoUser}
+          userId={formatOid(_id)}
+          title="Purchase History"
+          headers={[
+            "Purchase Id",
+            "Stock Id",
+            "Units Sold",
+            "View Stock",
+            "Sold Price Per Unit",
+            "Total Sold Amount",
+            "total units",
+            "remaining Units After Sell",
+            "Sold Date",
+       
+          ]}
+          endpoint="soldStock"
+          historyKey="SoldStock"
+          renderRow={renderSoldRow}
+        />
+      </div>
       {/* --- FINANCIAL HISTORY (Recharge & Withdraw) --- */}
       <div className="section-box">
         <h2 className="h2-section">

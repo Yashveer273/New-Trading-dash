@@ -41,7 +41,8 @@ function App() {
     "/QRCodeSubmit",
     "/UPISettings",
     "/recharge",
-    "/StocksDB"
+    "/",
+    "/users"
   ];
 
   const ProtectedRoute = ({ path, element }) => {
@@ -56,8 +57,8 @@ function App() {
       <Sidebar />
 
       <Routes>
-        <Route path="/" element={<ProtectedRoute path="/" element={<ProductPurchaseList />} />} />
-        <Route path="/StocksDB" element={<ProtectedRoute path="/StocksDB" element={<StocksDB />} />} />
+      
+        <Route path="/" element={<ProtectedRoute path="/" element={<StocksDB />} />} />
         <Route path="/users" element={<ProtectedRoute path="/users" element={<Users isDemoUser={false} />} />} />
         {/* <Route path="/CreateDemousers" element={<ProtectedRoute path="/CreateDemousers" element={<DemoAccounts />} />} /> */}
         {/* <Route path="/demousers" element={<ProtectedRoute path="/demousers" element={<Users isDemoUser={true} />} />} /> */}

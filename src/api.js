@@ -10,7 +10,16 @@ export const registerUser = async (userData) => {
     const res = await axios.post(`${API_BASE_URL}api/users/register`, userData);
     return res;
 };
-
+// ✅ 1. Get all users (paginated)
+export const fetchUsers = async (page = 1, limit = 10) => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}api/users/all?page=${page}&limit=${limit}`);
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    throw err;
+  }
+};
 export const addWithdrawAmountMenually  = async (phone, Amount,type) => {
   try {
     const res = await axios.post(`${API_BASE_URL}api/users/addWithdrawAmountMenually`, {  phone, Amount,type });

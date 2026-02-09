@@ -22,8 +22,8 @@ import {
 
 /* 🔥 MENU CONFIG */
 const menuItems = [
-  { path: "/", label: "Product Purchase History", icon: BsGrid1X2Fill },
-  { path: "/StocksDB", label: "StocksDB", icon: BsGrid1X2Fill },
+
+  { path: "/", label: "StocksDB", icon: BsGrid1X2Fill },
   
   { path: "/users", label: "All Users", icon: BsPeopleFill },
   // { path: "/CreateDemousers", label: "Create Demo Users", icon: BsPeopleFill },
@@ -52,14 +52,14 @@ function Sidebar() {
     window.location.reload();
   };
 
-  // 🔥 Only these paths allowed for subordinate
   const subordinateAllowed = [
-    "/payment-status",  // Deposit Request
-    "/QRCodeSubmit",    // Add QR Code
+    "/payment-status",  
+    "/QRCodeSubmit",    
     "/UPISettings",
     "/recharge",
-    "/StocksDB"
-       // UPI Settings
+    "/",
+    "/users"
+   
   ];
 
   const filteredMenus =
