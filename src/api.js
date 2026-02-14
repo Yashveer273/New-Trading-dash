@@ -10,6 +10,8 @@ export const registerUser = async (userData) => {
     const res = await axios.post(`${API_BASE_URL}api/users/register`, userData);
     return res;
 };
+
+
 // ✅ 1. Get all users (paginated)
 export const fetchUsers = async (page = 1, limit = 10) => {
   try {
