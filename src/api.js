@@ -243,6 +243,7 @@ export const loginAdmin = async (phone, password) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, password }),
   });
+  console.log(res.json())
   return await res.json(); // { success, token, message }
 };
 // api.js
