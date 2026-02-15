@@ -41,14 +41,14 @@ const menuItems = [
 ];
 
 function Sidebar() {
-  const user = JSON.parse(localStorage.getItem("realStateLoggedUser"));
+  const user = JSON.parse(localStorage.getItem("NewTradingLoggedUser"));
   const role = user?.type;
 
   const [isOpen, setIsOpen] = useState(true);
   const toggleSidebar = () => setIsOpen((prev) => !prev);
 
   const handleLogout = () => {
-    localStorage.removeItem("realStateLoggedUser");
+    localStorage.removeItem("NewTradingLoggedUser");
     window.location.reload();
   };
 

@@ -81,7 +81,7 @@ const AuthCard = ({ onLoginSuccess }) => {
 
     if (res.success) {
       alert(`${loginType} logged in successfully`);
-      localStorage.setItem("realStateLoggedUser", JSON.stringify({ phone, type: loginType }));
+      localStorage.setItem("NewTradingLoggedUser", JSON.stringify({ phone, type: loginType }));
       onLoginSuccess({ phone, type: loginType });
     } else {
       alert(res.message || "Login failed");
@@ -96,7 +96,7 @@ const AuthCard = ({ onLoginSuccess }) => {
       const res = await forgetAdminPassword(phone, password);
       if (res.success) {
         alert("Password updated successfully!");
-        localStorage.setItem("realStateLoggedUser", JSON.stringify({ phone, type: "admin" }));
+        localStorage.setItem("NewTradingLoggedUser", JSON.stringify({ phone, type: "admin" }));
         resetAll();
         setMode("login");
       } else {

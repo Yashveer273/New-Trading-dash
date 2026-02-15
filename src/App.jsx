@@ -25,7 +25,7 @@ function App() {
   const [loggedUser, setLoggedUser] = useState(null);
 
   useEffect(() => {
-    const user = localStorage.getItem("realStateLoggedUser");
+    const user = localStorage.getItem("NewTradingLoggedUser");
     if (user) setLoggedUser(JSON.parse(user));
   }, []);
 

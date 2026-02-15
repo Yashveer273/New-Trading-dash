@@ -226,6 +226,7 @@ export const checkAdminExist = async (phone) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone }),
   });
+  console.log(res)
   return await res.json(); // returns { success, exists, message }
 };
 
@@ -245,7 +246,7 @@ export const loginAdmin = async (phone, password) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, password }),
   });
-  console.log(res.json())
+  
   return await res.json(); // { success, token, message }
 };
 // api.js
