@@ -12,7 +12,6 @@ import Logout from "./Logout";
 
 import QRCodeSubmit from "./QRCodeSubmit";
 
-import ProductPurchaseList from "./ProductPurchaseList";
 import SocialMedia from "./SocialMedia";
 
 import CommissionSettings from "./CommissionSettings";
@@ -59,6 +58,7 @@ function App() {
       <Routes>
       
         <Route path="/" element={<ProtectedRoute path="/" element={<StocksDB />} />} />
+       
         <Route path="/users" element={<ProtectedRoute path="/users" element={<Users isDemoUser={false} />} />} />
         {/* <Route path="/CreateDemousers" element={<ProtectedRoute path="/CreateDemousers" element={<DemoAccounts />} />} /> */}
         {/* <Route path="/demousers" element={<ProtectedRoute path="/demousers" element={<Users isDemoUser={true} />} />} /> */}

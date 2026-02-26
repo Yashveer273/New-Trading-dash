@@ -2,9 +2,9 @@ import axios from "axios";
 
 // Base URL for the backend API
 export const API_BASE_URL = "https://tradingback.online/";
-export const API_BASE_URL2 = "https://tradingback.online/";
-// export const API_BASE_URL = "https://bdgwin.com.co/";
-// export const API_BASE_URL2 = "https://bdgwin.com.co";
+export const API_BASE_URL2 = "https://tradingback.online";
+// export const API_BASE_URL = "http://localhost:5004/";
+// export const API_BASE_URL2 = "http://localhost:5004";
 
 export const registerUser = async (userData) => { 
     const res = await axios.post(`${API_BASE_URL}api/users/register`, userData);
@@ -328,50 +328,36 @@ export const forgetAdminPassword = async (phone, newPassword) => {
 
 
 
-
-
-export async function fetchStocks() {
-  const res = await fetch(`${API_BASE_URL}api/products`);
-  return res.json();
-}
-
-export async function addStock(data) {
-  const res = await fetch(`${API_BASE_URL}api/products`, {
+export const createProductAPI = async (data) => {
+  const response = await fetch(`${API_BASE_URL}api/products`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
-  return res.json();
-}
 
-export async function updateStock(id, data) {
-  const res = await fetch(`${`${API_BASE_URL}api/products`}/${id}/singlePrice`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-  return res.json();
-}
+  return response.json();
+};
 
-export async function bulkUpdateStocks(updates) {
-  const res = await fetch(`${`${API_BASE_URL}api/products`}/bulk/price`, {
+/* ================= UPDATE ================= */
+export const updateProductAPI = async (id, data) => {
+  const response = await fetch(`${`${API_BASE_URL}api/products`}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updates)
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
-  return res.json();
-}
 
-export async function deleteStock(id) {
-  const res = await fetch(`${`${API_BASE_URL}api/products`}/${id}`, { method: "DELETE" });
-  return res.json();
-}
-export async function updateProductDetails(id, data) {
-  console.log(data);
-  const res = await fetch(`${`${API_BASE_URL}api/products`}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+  return response.json();
+};
+
+/* ================= DELETE ================= */
+export const deleteProductAPI = async (id) => {
+  const response = await fetch(`${`${API_BASE_URL}api/products`}/${id}`, {
+    method: "DELETE",
   });
-  return res.json();
-}
+
+  return response.json();
+};
